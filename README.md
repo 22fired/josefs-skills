@@ -28,6 +28,7 @@ Alternatively, place skills under `.opencode/skills/` in your project for automa
 | --- | --- |
 | `token-efficiency` | Fewer tokens on retrieval, output and context, without losing correctness |
 | `orchestration` | Locked delegation levels for cheap implementation, planning, and review |
+| `free-review` | Independent free-model reviews with one consolidated finding report |
 
 ## Conventions
 

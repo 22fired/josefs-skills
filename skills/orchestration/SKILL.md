@@ -5,29 +5,22 @@ description: Delegate implementation to cheap models with fixed planning and rev
 
 # Orchestration
 
-Run the selected level exactly as specified. Put `mode: 0`, `mode: 1`, or `mode: 2` on the first line of every response. Without an explicit level, use 1.
+Run the selected level exactly. First line of every response: `mode: 0`, `mode: 1`, or `mode: 2`; default 1 when unspecified. The level is locked in both directions until the user explicitly changes it; follow-ups inherit it. Never skip steps or change models, effort, or review depth. If the level is insufficient, finish only the safely scoped, verified work and report `mode insufficient: <reason>, <level> recommended` on the second line; never self-escalate.
 
-The level is locked in both directions until the user explicitly changes it. Follow-ups inherit it. Do not skip a step or change models, effort, or review depth. If the level is insufficient, finish only the safely scoped, verified work and report `mode insufficient: <reason>, <level> recommended` on the second line; do not escalate yourself.
-
-The main agent coordinates and reports but never creates or edits files. Delegate all planning, implementation, review, and verification to the specified subagents. Include the locked level and `do not change mode` in every subagent prompt. Use `high` effort for every model. Preserve project instructions, correctness, evidence, and the active output style.
+The main agent only coordinates and reports; it never creates or edits files. Delegate all planning, implementation, review, and verification to the specified subagents. Every subagent prompt carries the locked level and `do not change mode`. Use `high` effort for every model. Preserve project instructions, correctness, evidence, and the active output style.
 
 | Level | Workflow |
 | --- | --- |
 | 0 | DeepSeek implements and self-checks. |
 | 1 | Sol plans; DeepSeek checks the plan, implements it, and self-checks. |
-| 2 | Sol plans; DeepSeek checks the plan, implements it, and self-checks; Sol reviews the result. |
+| 2 | Level 1, plus Sol reviews the result. |
 
-## Roles
+Roles: planner/reviewer `crowbot/gpt-6.1-sol#high`; implementer `crowbot/deepseek-v4.1-flash#high`.
 
-- Planner and reviewer: `crowbot/gpt-6.1-sol#high`.
-- Implementer: `crowbot/deepseek-v4.1-flash#high`.
+**Level 0:** DeepSeek receives the task, constraints, and relevant context; it may inspect what it needs, make the minimal correct change, run available tests or compile checks, and audit its diff.
 
-## Workflow
+**Levels 1–2:** Sol inspects the task and writes a concrete plan covering files, steps, tests, risks, and assumptions. DeepSeek receives it with the original task and, before editing, checks it against the actual code for missing files, false assumptions, omitted steps, and breakage, reporting corrections and open assumptions. If the plan is unusable or materially wrong, Sol revises it once from DeepSeek's findings; if still unusable, stop and report why. Deviations found during implementation are reported, never silent.
 
-**Level 0:** Give DeepSeek the task, constraints, and relevant context. It may inspect what it needs, make the minimal correct change, run available tests or compile checks, and audit its diff.
+**Level 2 only:** Sol, read-only, reviews the original task, plan, final diff, and verification output for correctness, plan fidelity, regressions, and missing tests, reporting actionable findings with evidence. DeepSeek confirms findings against the code, fixes them, and reruns verification; disputed findings go to the user, not silently ignored. Sol reviews again. At most two review rounds: after the second, no further edits; report remaining findings.
 
-**Levels 1–2:** Have Sol inspect the task and produce a concrete plan covering files, steps, tests, risks, and assumptions. Give DeepSeek that plan and the original task. Before editing, DeepSeek must check the plan against the actual code for missing files, false assumptions, omitted steps, and breakage; report corrections or open assumptions. If the plan is unusable or materially wrong, have Sol revise it once with DeepSeek's findings; if still unusable, stop and report why. Deviations discovered during implementation must be reported, not silently introduced.
-
-**Level 2 only:** After implementation, have Sol review the original task, plan, final diff, and verification output for correctness, plan fidelity, regressions, and missing tests. The reviewer is read-only and reports actionable findings with evidence. DeepSeek confirms findings against the code, fixes them, and reruns verification; disputed findings are reported to the user, not silently ignored. Sol then reviews again. Allow at most two review rounds: after the second review, make no further edits and report any remaining findings.
-
-DeepSeek runs tests or compile checks and audits the diff at every level; Sol only inspects the evidence. Always finish with a concise report of changed files, checks, and unresolved issues. Never claim success without evidence.
+At every level DeepSeek runs tests or compile checks and audits its diff; Sol only inspects evidence. End with a concise report of changed files, checks, and unresolved issues; never claim success without evidence.

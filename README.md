@@ -27,6 +27,7 @@ Alternatively, place skills under `.opencode/skills/` in your project for automa
 | id | purpose |
 | --- | --- |
 | `token-efficiency` | Fewer tokens on retrieval, output and context, without losing correctness |
+| `orchestration` | Locked delegation levels for cheap implementation, planning, and review |
 
 ## Conventions
 

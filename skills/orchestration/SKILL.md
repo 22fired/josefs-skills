@@ -1,6 +1,8 @@
 ---
 name: Orchestration
 description: Delegate implementation to cheap models with fixed planning and review levels. Use for orchestration, delegation, or subagent implementation, especially level 0, 1, or 2.
+metadata:
+  opencode/autoinvoke: false
 ---
 
 # Orchestration

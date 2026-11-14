@@ -1,6 +1,8 @@
 ---
 name: Token Efficiency
 description: Reduce wasted context on repository work. Use for broad searches, large files, noisy commands, or long sessions.
+metadata:
+  opencode/autoinvoke: false
 ---
 
 # Token Efficiency

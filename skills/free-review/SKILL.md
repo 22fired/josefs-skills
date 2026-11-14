@@ -1,6 +1,8 @@
 ---
 name: Free Review
 description: Get independent second opinions from free OpenCode models on a plan, diff, code, or document. Use for free review, sanity checks, or pre-commit review.
+metadata:
+  opencode/autoinvoke: false
 ---
 
 # Free Review
